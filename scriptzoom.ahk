@@ -42,86 +42,74 @@ Loop
 	VideoTempDir := SrcDir . "\" . TempDir
 	VideoDestDir := SrcDir . "\" . FinalDir
 
-	
 	IfExist,%VideoSrcDir% 
 	{
-     	
-        Loop, %VideoSrcDir%\*.* 
-        {
-            DebugMessage(1, "Scanning " VideoSrcDir)
+		Loop, %VideoSrcDir%\*.* 
+		{
+			DebugMessage(1, "Scanning " VideoSrcDir)
+			ifExist, %VideoSrcDir%\*.mov
+			{	
+				SrcFile = %A_LoopFileName%
+				SrcFile = %A_LoopFileFullPath%
+				TempConverted := VideoTempDir . "\" . RegExReplace(A_LoopFileName, "...$", "mp4") 
+				TempProcessed := RegExReplace(TempConverted, "\."  , "-processed.") 
+				DestFile :=  VideoDestDir . "\" . RegExReplace(A_LoopFileName, "...$", "mp4")
 
-	  ifExist, %VideoSrcDir%\*.mov
-	  {
+				ifNotExist,%TempConverted%
+				{
+					DebugMessage(1, "Converting " TempConverted )
+					FileCreateDir, %VideoTempDir%
+					runwait, ffmpeg -i "%SrcFile%" -c:v libx264 -crf 15 -preset slow -c copy "%TempConverted%" ,, hide
+				}
 
-            SrcFile = %A_LoopFileName%
-            SrcFile = %A_LoopFileFullPath%
-           
-	
-            TempConverted := VideoTempDir . "\" . RegExReplace(A_LoopFileName, "...$", "mp4") 
-            TempProcessed := RegExReplace(TempConverted, "\."  , "-processed.") 
-			DestFile :=  VideoDestDir . "\" . RegExReplace(A_LoopFileName, "...$", "mp4")
-	
-           
-            ifNotExist,%TempConverted%
-        	{
-        	DebugMessage(1, "Converting " TempConverted )
-                FileCreateDir, %VideoTempDir%
-                runwait, ffmpeg -i "%SrcFile%" -c:v libx264 -crf 15 -preset slow -c copy "%TempConverted%" ,, hide
-            }
+				ifNotExist, %DestFile%
+				{
+					DebugMessage(1, "Processing to " DestFile)
+					FileCreateDir, %VideoDestDir%
 
-            ifNotExist, %DestFile%
-        	{
-        	DebugMessage(1, "Processing to " DestFile)
-        	FileCreateDir, %VideoDestDir%
+					runwait, ffmpeg  -i "%LogoImg%"  -i "%LogoVid%"  -i "%music%" -ss 5.2 -t 1.6 -i "%TempConverted%" -ss 0.8 -t 1 -i "%TempConverted%" -ss 7 -t 0.25 -i "%TempConverted%" -ss 1.7 -t 0.25 -i "%TempConverted%" -ss 7.6 -t 0.4 -i "%TempConverted%" -ss 7.8 -t 0.2 -i "%TempConverted%" -ss 2.2 -t 0.8 -i "%TempConverted%" -ss 2.2 -t 0.8 -i "%TempConverted%" -ss 3.2 -t 1 -i "%TempConverted%" -ss 9 -t 1 -i "%TempConverted%" -ss 7.3 -t 1 -i "%TempConverted%" -ss 4.2 -t 1.6 -i "%TempConverted%" -ss 8 -t 1 -i "%TempConverted%" -filter_complex_script  "%FilterScript%" -map [vid] -map [aud] -c:v libx264 -c:a aac -ac 2 -ar 44100 -ss 0 -t 13 "%DestFile%" ,, hide
+					Sleep, 5000
 
-        	runwait, ffmpeg  -i "%LogoImg%"  -i "%LogoVid%"  -i "%music%" -ss 5.2 -t 1.6 -i "%TempConverted%" -ss 0.8 -t 1 -i "%TempConverted%" -ss 7 -t 0.25 -i "%TempConverted%" -ss 1.7 -t 0.25 -i "%TempConverted%" -ss 7.6 -t 0.4 -i "%TempConverted%" -ss 7.8 -t 0.2 -i "%TempConverted%" -ss 2.2 -t 0.8 -i "%TempConverted%" -ss 2.2 -t 0.8 -i "%TempConverted%" -ss 3.2 -t 1 -i "%TempConverted%" -ss 9 -t 1 -i "%TempConverted%" -ss 7.3 -t 1 -i "%TempConverted%" -ss 4.2 -t 1.6 -i "%TempConverted%" -ss 8 -t 1 -i "%TempConverted%" -filter_complex_script  "%FilterScript%" -map [vid] -map [aud] -c:v libx264 -c:a aac -ac 2 -ar 44100 -ss 0 -t 13 "%DestFile%" ,, hide
-           	Sleep, 5000
+					DebugMessage(1, "Done! file ready in " DestFile)
+				}
+			}
 
-           	DebugMessage(1, "Done! file ready in " DestFile)
+			ifExist, %VideoSrcDir%\*.mp4
+			{
+				SrcFile = %A_LoopFileName%
+				SrcFile = %A_LoopFileFullPath%
+				TempConverted := VideoTempDir . "\" . RegExReplace(A_LoopFileName, "...$", "mp4") 
+				TempProcessed := RegExReplace(TempConverted, "\."  , "-processed.") 
+				DestFile :=  VideoDestDir . "\" . RegExReplace(A_LoopFileName, "...$", "mp4")
 
-            }
+				ifNotExist,%TempConverted%
+				{
+					DebugMessage(1, "Converting " TempConverted )
+					FileCreateDir, %VideoTempDir%
+					runwait, ffmpeg -i "%SrcFile%" -c:v libx264 -crf 15 -preset slow -c copy "%TempConverted%" ,, hide
+				}
+
+				ifNotExist, %DestFile%
+				{
+					DebugMessage(1, "Processing to " DestFile)
+					FileCreateDir, %VideoDestDir%
+
+					runwait, ffmpeg  -i "%LogoImg%"  -i "%LogoVid%"  -i "%music%" -ss 5.2 -t 1.6 -i "%TempConverted%" -ss 0.8 -t 1 -i "%TempConverted%" -ss 7 -t 0.25 -i "%TempConverted%" -ss 1.7 -t 0.25 -i "%TempConverted%" -ss 7.6 -t 0.4 -i "%TempConverted%" -ss 7.8 -t 0.2 -i "%TempConverted%" -ss 2.2 -t 0.8 -i "%TempConverted%" -ss 2.2 -t 0.8 -i "%TempConverted%" -ss 3.2 -t 1 -i "%TempConverted%" -ss 9 -t 1 -i "%TempConverted%" -ss 7.3 -t 1 -i "%TempConverted%" -ss 4.2 -t 1.6 -i "%TempConverted%" -ss 8 -t 1 -i "%TempConverted%" -filter_complex_script  "%FilterScript%" -map [vid] -map [aud] -c:v libx264 -c:a aac -ac 2 -ar 44100 -ss 0 -t 13 "%DestFile%" ,, hide
+					Sleep, 5000
+
+					DebugMessage(1, "Done! file ready in " DestFile)
+				}
+			}
+		}
 	}
-	ifExist, %VideoSrcDir%\*.mp4
-	  {
-
-            SrcFile = %A_LoopFileName%
-            SrcFile = %A_LoopFileFullPath%
-           
 	
-            TempConverted := VideoTempDir . "\" . RegExReplace(A_LoopFileName, "...$", "mp4") 
-            TempProcessed := RegExReplace(TempConverted, "\."  , "-processed.") 
-			DestFile :=  VideoDestDir . "\" . RegExReplace(A_LoopFileName, "...$", "mp4")
-	
-           
-            ifNotExist,%TempConverted%
-        	{
-        	DebugMessage(1, "Converting " TempConverted )
-                FileCreateDir, %VideoTempDir%
-                runwait, ffmpeg -i "%SrcFile%" -c:v libx264 -crf 15 -preset slow -c copy "%TempConverted%" ,, hide
-            }
-
-            ifNotExist, %DestFile%
-        	{
-        	DebugMessage(1, "Processing to " DestFile)
-        	FileCreateDir, %VideoDestDir%
-
-        	runwait, ffmpeg  -i "%LogoImg%"  -i "%LogoVid%"  -i "%music%" -ss 5.2 -t 1.6 -i "%TempConverted%" -ss 0.8 -t 1 -i "%TempConverted%" -ss 7 -t 0.25 -i "%TempConverted%" -ss 1.7 -t 0.25 -i "%TempConverted%" -ss 7.6 -t 0.4 -i "%TempConverted%" -ss 7.8 -t 0.2 -i "%TempConverted%" -ss 2.2 -t 0.8 -i "%TempConverted%" -ss 2.2 -t 0.8 -i "%TempConverted%" -ss 3.2 -t 1 -i "%TempConverted%" -ss 9 -t 1 -i "%TempConverted%" -ss 7.3 -t 1 -i "%TempConverted%" -ss 4.2 -t 1.6 -i "%TempConverted%" -ss 8 -t 1 -i "%TempConverted%" -filter_complex_script  "%FilterScript%" -map [vid] -map [aud] -c:v libx264 -c:a aac -ac 2 -ar 44100 -ss 0 -t 13 "%DestFile%" ,, hide
-           	Sleep, 5000
-
-           	DebugMessage(1, "Done! file ready in " DestFile)
-
-            }
-	}
-        }
-	}
 	else
 	{
-
-	    DebugMessage(1, "Waiting for video files")
+		DebugMessage(1, "Waiting for video files")
 	}
-    
-    ; only run every second to avoid hogging the processor
-    Sleep 1000
+
+	; only run every second to avoid hogging the processor
+	Sleep 1000
 }
 
 ; Display a debug message if showDebugMessages = 1
